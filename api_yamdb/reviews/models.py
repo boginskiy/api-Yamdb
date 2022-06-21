@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from titles.models import Title
-from user.models import *   # Вова
+from user.models import
 
 
 class Review(models.Model):
