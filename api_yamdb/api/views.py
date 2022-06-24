@@ -1,12 +1,10 @@
-from rest_framework import viewsets
-from rest_framework import permissions
-from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
+
 from .permissions import AdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           ReadTitleSerializer, WriteTitleSerializer
                           )
-
 from titles.models import Category, Genre, Title
 
 
