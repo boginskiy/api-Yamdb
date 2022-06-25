@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken', # УДАЛИТЬ!!!
+    'django_filters',
+    'api',
     'titles',
 ]
 
@@ -101,6 +103,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
 
 AUTH_USER_MODEL = 'user.User'
 

@@ -19,15 +19,14 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.TextField()
-    year = models.DateTimeField(auto_now_add=True)
+    year = models.IntegerField()
     description = models.TextField()
-    genre = models.ForeignKey(
-        Genre, on_delete=models.SET_NULL,
-        related_name="posts", blank=True, null=True
+    genre = models.ManyToManyField(
+        Genre, related_name="titles", blank=True
     )
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL,
-        related_name="posts", blank=True, null=True
+        related_name="titles", blank=True, null=True
     )
 
     def __str__(self):

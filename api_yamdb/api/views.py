@@ -1,13 +1,51 @@
 from requests import Response
 from rest_framework.viewsets import ModelViewSet
 from reviews.models import Review, Comment
-from titles.models import Title
 from django.shortcuts import get_object_or_404
 from .serializers import ReviewSerializer, CommentSerializer
 from .permissions import OnlyReadOrСhangeAuthorAdminModerator
 from .pagination import CustomPageNumberPagination
 from rest_framework.views import APIView
 from django.db import models
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
+from .permissions import AdminOrReadOnly
+from .serializers import (CategorySerializer, GenreSerializer,
+                          ReadTitleSerializer, WriteTitleSerializer
+                          )
+from titles.models import Category, Genre, Title
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (AdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (AdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = WriteTitleSerializer
+    permission_classes = (AdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('name',)
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return WriteTitleSerializer
+        return ReadTitleSerializer
+# ------------------------------ Мария
 
 
 class ReviewViewSet(ModelViewSet):
@@ -43,3 +81,4 @@ class CommentViewSet(ModelViewSet):
         instance = get_object_or_404(Review, id=reviews_id, title_id=titles_id)
         serializer.save(author=self.request.user, review=instance)
 # ---------------------------------------
+
