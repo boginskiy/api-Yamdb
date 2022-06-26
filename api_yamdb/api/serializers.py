@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from reviews.models import Review, Comment
 from rest_framework.validators import UniqueTogetherValidator
 import datetime as dt
+from reviews.models import Review, Comment
 from titles.models import Category, Genre, Title
 
 
@@ -33,7 +33,7 @@ class WriteTitleSerializer(serializers.ModelSerializer):
         if not (0 < value <= year):
             raise serializers.ValidationError(
                 'Год выпуска не может быть больше текущего!'
-                )
+            )
         return value
 
     class Meta:
@@ -42,12 +42,13 @@ class WriteTitleSerializer(serializers.ModelSerializer):
 
 
 class ReadTitleSerializer(serializers.ModelSerializer):
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'rating', 'description',
                   'genre', 'category',)
-# ----------------------------------------- Мария
+
 
 class CurrentTitleDefault:
     requires_context = True
@@ -64,19 +65,19 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username',
         default=serializers.CurrentUserDefault(),
-        )
+    )
     title = serializers.HiddenField(default=CurrentTitleDefault(),)
 
     class Meta:
         fields = '__all__'
         model = Review
         validators = [
-        UniqueTogetherValidator(
-            queryset=Review.objects.all(),
-            fields=('author', 'title'),
-            message = 'Не более одного комментария для произведения'
-        )
-    ]
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('author', 'title'),
+                message='Не более одного комментария для произведения'
+            )
+        ]
 
     def validate_score(self, value):
         if not (1 <= value <= 10):
@@ -92,4 +93,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ('review',)
         model = Comment
-#----------------------------------------------

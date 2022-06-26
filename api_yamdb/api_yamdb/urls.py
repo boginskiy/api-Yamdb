@@ -27,5 +27,5 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
-    path('api-token-auth/', views.obtain_auth_token), # УДАЛИТЬ !!!!
+    path('api-token-auth/', views.obtain_auth_token),
 ]

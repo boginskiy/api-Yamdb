@@ -1,19 +1,18 @@
-from requests import Response
-from rest_framework.viewsets import ModelViewSet
-from reviews.models import Review, Comment
-from django.shortcuts import get_object_or_404
-from .serializers import ReviewSerializer, CommentSerializer
-from .permissions import OnlyReadOrСhangeAuthorAdminModerator
-from .pagination import CustomPageNumberPagination
-from rest_framework.views import APIView
 from django.db import models
-from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
+from rest_framework.viewsets import ModelViewSet
 from rest_framework import filters, viewsets
-from .permissions import AdminOrReadOnly
-from .serializers import (CategorySerializer, GenreSerializer,
-                          ReadTitleSerializer, WriteTitleSerializer
-                          )
+from django_filters.rest_framework import DjangoFilterBackend
+from reviews.models import Review
 from titles.models import Category, Genre, Title
+from .permissions import (
+    OnlyReadOrСhangeAuthorAdminModerator,
+    AdminOrReadOnly)
+from .pagination import CustomPageNumberPagination
+from .serializers import (
+    CategorySerializer, GenreSerializer,
+    ReadTitleSerializer, WriteTitleSerializer,
+    ReviewSerializer, CommentSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -45,7 +44,13 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update']:
             return WriteTitleSerializer
         return ReadTitleSerializer
-# ------------------------------ Мария
+
+    def get_queryset(self):
+        new_queryset = Title.objects.annotate(
+            rating=models.Sum(models.F('reviews__score'))
+            / models.Count(models.F('reviews'))
+        )
+        return new_queryset
 
 
 class ReviewViewSet(ModelViewSet):
@@ -68,11 +73,14 @@ class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (OnlyReadOrСhangeAuthorAdminModerator,)
     pagination_class = CustomPageNumberPagination
-    
+
     def get_queryset(self):
         titles_id = self.kwargs.get('titles_id')
         reviews_id = self.kwargs.get('reviews_id')
-        new_queryset = get_object_or_404(Review, id=reviews_id, title_id=titles_id)
+        new_queryset = get_object_or_404(
+            Review,
+            id=reviews_id,
+            title_id=titles_id)
         return new_queryset.comments.all()
 
     def perform_create(self, serializer):
@@ -80,5 +88,3 @@ class CommentViewSet(ModelViewSet):
         reviews_id = self.kwargs.get('reviews_id')
         instance = get_object_or_404(Review, id=reviews_id, title_id=titles_id)
         serializer.save(author=self.request.user, review=instance)
-# ---------------------------------------
-
