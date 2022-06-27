@@ -1,5 +1,4 @@
-from rest_framework import (viewsets, filters, generics, status,
-                            serializers)
+from rest_framework import (viewsets, filters, generics, status)
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,7 +14,7 @@ from titles.models import Category, Genre, Title
 from .permissions import (
     OnlyReadOrСhangeAuthorAdminModerator,
     AdminOrReadOnly)
-from .pagination import CustomPageNumberPagination, CustomPagination
+from .paginations import CustomPagination
 from .serializers import (
     CategorySerializer, GenreSerializer,
     ReadTitleSerializer, WriteTitleSerializer,
@@ -118,7 +117,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (OnlyReadOrСhangeAuthorAdminModerator,)
-    pagination_class = CustomPageNumberPagination
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         titles_id = self.kwargs.get('titles_id')
@@ -134,7 +133,7 @@ class ReviewViewSet(ModelViewSet):
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (OnlyReadOrСhangeAuthorAdminModerator,)
-    pagination_class = CustomPageNumberPagination
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         titles_id = self.kwargs.get('titles_id')
