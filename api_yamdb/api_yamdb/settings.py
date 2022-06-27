@@ -17,6 +17,8 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'user.apps.UserConfig',
+    'api.apps.ApiConfig',
+    'titles.apps.TitlesConfig',
     'reviews.apps.ReviewsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,8 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'titles',
-    'api',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -107,10 +108,11 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
 AUTH_USER_MODEL = 'user.User'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "barclays199018@gmail.com"
-EMAIL_HOST_PASSWORD = "dizxvvqrcutffscq"
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
@@ -118,7 +120,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
