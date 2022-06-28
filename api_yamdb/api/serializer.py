@@ -19,6 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
 
+# Отнаследуем от UserSerializer, переопределим поле role.
+class UserMeSerializer(UserSerializer):
+    role = serializers.CharField(read_only=True)
+
+
 class AuthSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['username', 'email']

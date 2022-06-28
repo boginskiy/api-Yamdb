@@ -6,7 +6,8 @@ from rest_framework.views import APIView
 
 from api.paginations import CustomPagination
 from api.permissions import OwnIsAuthenticatedAndIsAdmin
-from api.serializer import UserSerializer, AuthSerializer, TokenSerializer
+from api.serializer import (UserSerializer, AuthSerializer, TokenSerializer,
+                            UserMeSerializer)
 from api.service import get_random_number
 from user.models import User
 
@@ -24,7 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class DetailView(APIView):
     """Получение и изменение данных своей учетной записи"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ]
 
     def get(self, request, format=None):
         user = User.objects.get(username=request.user.username)
@@ -33,7 +34,8 @@ class DetailView(APIView):
 
     def patch(self, request):
         user = User.objects.get(username=request.user.username)
-        serializer = UserSerializer(
+        # Для patch нужен отдельный сериалайзер с role только для чтения.
+        serializer = UserMeSerializer(
             user,
             data=request.data,
             partial=True,
