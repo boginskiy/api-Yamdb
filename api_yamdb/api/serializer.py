@@ -11,6 +11,13 @@ class UserSerializer(serializers.ModelSerializer):
                   'last_name', 'bio', 'role']
         model = User
 
+    def validate(self, data):
+        role = self.context.get('role')
+        if 'role' in data and role == 'user':
+            raise serializers.ValidationError(
+                "User не может изменить свою роль")
+        return data
+
 
 class AuthSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,18 +45,19 @@ class TokenSerializer(serializers.BaseSerializer):
     def to_internal_value(self, data):
         username = data.get('username')
         confirmation_code = data.get('confirmation_code')
+
+        if username is None or confirmation_code is None:
+            raise serializers.ValidationError(
+                {"o-ops": "Забыли указать данные"}
+            )
+
         user = get_object_or_404(User, username=username)
 
-        try:
-            if user.confirmation_code == int(confirmation_code):
-                token = get_tokens_for_user(user)
-            else:
-                raise serializers.ValidationError(
-                    {"o-ops": "Неправильный проверочный код"}
-                )
-        except:
+        if user.confirmation_code == int(confirmation_code):
+            token = get_tokens_for_user(user)
+        else:
             raise serializers.ValidationError(
-                {"o-ops": "Забыли указать проверочный код"}
+                {"o-ops": "Неправильный проверочный код"}
             )
 
         return {

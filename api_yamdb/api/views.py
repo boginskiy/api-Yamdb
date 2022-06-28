@@ -5,14 +5,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.paginations import CustomPagination
+from api.permissions import OwnIsAuthenticatedAndIsAdmin
 from api.serializer import UserSerializer, AuthSerializer, TokenSerializer
 from api.service import get_random_number
 from user.models import User
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """Viewsets для всех пользователей."""
-    permission_classes = [IsAuthenticated & IsAdminUser]
+    """Вьюшка для просмотра, добавление, редактирования юзеров"""
+    permission_classes = [OwnIsAuthenticatedAndIsAdmin | IsAdminUser]
     queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
@@ -32,7 +33,12 @@ class DetailView(APIView):
 
     def patch(self, request):
         user = User.objects.get(username=request.user.username)
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = UserSerializer(
+            user,
+            data=request.data,
+            partial=True,
+            context={'role': request.user.role}
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -50,6 +56,13 @@ class AuthViewRegister(generics.CreateAPIView):
         code = get_random_number()
         context.update({"code": code})
         return context
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
 
 class TokenViewGet(APIView):
