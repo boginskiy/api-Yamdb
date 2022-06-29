@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from api.paginations import CustomPagination
 from api.permissions import OwnIsAuthenticatedAndIsAdmin
-from api.serializer import UserSerializer, AuthSerializer, TokenSerializer
+from api.serializer import UserSerializer, AuthSerializer, TokenSerializer, UserMeSerializer
 from api.service import get_random_number
 from user.models import User
 
@@ -33,7 +33,7 @@ class DetailView(APIView):
 
     def patch(self, request):
         user = User.objects.get(username=request.user.username)
-        serializer = UserSerializer(
+        serializer = UserMeSerializer(
             user,
             data=request.data,
             partial=True,

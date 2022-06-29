@@ -109,8 +109,8 @@ AUTH_USER_MODEL = 'user.User'
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "barclays199018@gmail.com"
-EMAIL_HOST_PASSWORD = "dizxvvqrcutffscq"
+EMAIL_HOST_USER = None # указать почту
+EMAIL_HOST_PASSWORD = None # указать пароль
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 

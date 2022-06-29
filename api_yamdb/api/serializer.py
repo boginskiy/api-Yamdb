@@ -19,6 +19,10 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
 
+class UserMeSerializer(UserSerializer):
+    role = serializers.CharField(read_only=True)
+
+
 class AuthSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['username', 'email']
