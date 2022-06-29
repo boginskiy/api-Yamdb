@@ -165,5 +165,5 @@ class CommentSerializer(serializers.ModelSerializer):
         slug_field='username',)
 
     class Meta:
-        exclude = ('review',)
+        fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
