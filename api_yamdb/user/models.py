@@ -4,16 +4,16 @@ from django.db import models
 
 
 class Manager(BaseUserManager):
-    def create_user(self, username, email, password=None):
+    def create_user(self, username, email, role, bio, password=None):
         if not email:
             raise ValueError('Пользователь должен иметь email')
-        user = self.model(username=username, email=email, )
+        user = self.model(username=username, email=email, role=role, bio=bio)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, password=None):
-        user = self.model(username=username, email=email, )
+    def create_superuser(self, username, email, role, bio, password=None):
+        user = self.model(username=username, email=email, role=role, bio=bio)
         user.is_staff = True
         user.is_superuser = True
         user.set_password(password)
