@@ -1,8 +1,8 @@
+import datetime as dt
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 from api.service import send_code_to_email, get_tokens_for_user
-import datetime as dt
 from reviews.models import Review, Comment
 from titles.models import Category, Genre, Title
 from user.models import User
