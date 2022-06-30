@@ -10,14 +10,21 @@ class Review(models.Model):
     text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews')
-    score = models.IntegerField(
+    score = models.SmallIntegerField(
         validators=[
             MaxValueValidator(10),
             MinValueValidator(1)
         ],
-        null=True,
-        blank=True)
+        default=1,)
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_title_author'
+            )
+        ]
 
     def __str__(self):
         return self.text[:25]
@@ -30,9 +37,3 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-
-
-class Rating(models.Model):
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name="rating")
-    rating = models.IntegerField()
