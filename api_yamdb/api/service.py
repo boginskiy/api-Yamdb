@@ -1,8 +1,6 @@
 import random
-
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from api_yamdb import settings
 
 

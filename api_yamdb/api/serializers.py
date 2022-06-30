@@ -1,8 +1,7 @@
+import datetime as dt
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 from api.service import send_code_to_email, get_tokens_for_user
-import datetime as dt
 from reviews.models import Review, Comment
 from titles.models import Category, Genre, Title
 from user.models import User
@@ -145,18 +144,21 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title'),
-                message='Не более одного комментария для произведения'
-            )
-        ]
 
     def validate_score(self, value):
         if not (1 <= value <= 10):
             raise serializers.ValidationError('Поставьте оценку от 1 до 10')
         return value
+
+    def validate(self, data):
+        if self.context['request'].method == 'POST':
+            author = self.context['request'].user
+            title = self.context.get('view').kwargs.get('title_id')
+            if Review.objects.filter(title=title, author=author).exists():
+                raise serializers.ValidationError(
+                    'Не более одного комментария для произведения')
+            return data
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):

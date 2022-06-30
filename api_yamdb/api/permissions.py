@@ -2,6 +2,7 @@ from rest_framework import permissions
 
 
 class AdminOrReadOnly(permissions.BasePermission):
+    """."""
 
     def has_permission(self, request, view):
         return (
@@ -12,6 +13,7 @@ class AdminOrReadOnly(permissions.BasePermission):
 
 
 class OnlyReadOrСhangeAuthorAdminModerator(permissions.BasePermission):
+    """."""
 
     def has_permission(self, request, view):
         return (
@@ -23,11 +25,14 @@ class OnlyReadOrСhangeAuthorAdminModerator(permissions.BasePermission):
             request.method in permissions.SAFE_METHODS
             or request.user.is_admin
             or request.user.is_moderator
-            or obj.author == request.user.is_user)
+            or obj.author == request.user)
 
 
 class OwnIsAuthenticatedAndIsAdmin(permissions.BasePermission):
-    """Добавлять юзеров может admin"""
+    """Добавлять юзеров может admin."""
 
     def has_permission(self, request, view):
-            return bool(request.user and request.user.is_authenticated and request.user.is_admin) 
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_admin)
