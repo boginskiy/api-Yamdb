@@ -116,6 +116,9 @@ class WriteTitleSerializer(serializers.ModelSerializer):
 
 class ReadTitleSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField()
+    name = serializers.CharField()
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Title

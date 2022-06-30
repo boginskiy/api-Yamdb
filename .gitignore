@@ -151,3 +151,4 @@ media/
 api_yamdb/reviews/migrations/
 api_yamdb/titles/migrations/
 api_yamdb/user/migrations/
+

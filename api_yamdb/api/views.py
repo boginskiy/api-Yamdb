@@ -1,11 +1,14 @@
 from rest_framework import (viewsets, filters, generics, status)
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework import filters, viewsets
 from rest_framework.response import Response
+from rest_framework import permissions
+from rest_framework import mixins
 from rest_framework.views import APIView
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from .filters import TitleFilter
 from api.service import get_random_number
 from reviews.models import Review
 from user.models import User
@@ -89,7 +92,12 @@ class TokenViewGet(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CreateDeleteListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                        mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    pass
+
+
+class CategoryViewSet(CreateDeleteListViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (AdminOrReadOnly,)
@@ -98,7 +106,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(CreateDeleteListViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnly,)
@@ -111,8 +119,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = WriteTitleSerializer
     permission_classes = (AdminOrReadOnly,)
+    pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name',)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:

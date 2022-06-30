@@ -23,7 +23,6 @@ router.register(
     basename='comments')
 
 urlpatterns = [
-
     path('users/me/', DetailView.as_view()),
     path('', include(router.urls)),
     path('auth/signup/', AuthViewRegister.as_view()),
