@@ -1,13 +1,15 @@
 from rest_framework import (viewsets, filters, generics, status)
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework import filters, viewsets
 from rest_framework.response import Response
+from rest_framework import permissions
+from rest_framework import mixins
 from rest_framework.views import APIView
-from api.service import get_random_number
 from django.db import models
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import TitleFilter
+from api.service import get_random_number
 from reviews.models import Review
 from user.models import User
 from titles.models import Category, Genre, Title
@@ -22,8 +24,6 @@ from .serializers import (
     ReviewSerializer, CommentSerializer,
     UserSerializer, AuthSerializer,
     TokenSerializer, UserMeSerializer)
-from rest_framework import permissions
-from rest_framework import mixins
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -42,12 +42,12 @@ class DetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        user = User.objects.get(username=request.user.username)
+        user = get_object_or_404(User, username=request.user.username)
         serializer = UserSerializer(user)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request):
-        user = User.objects.get(username=request.user.username)
+        user = get_object_or_404(User, username=request.user.username)
         serializer = UserMeSerializer(
             user,
             data=request.data,
@@ -77,7 +77,8 @@ class AuthViewRegister(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_200_OK, headers=headers)
 
 
 class TokenViewGet(APIView):
@@ -170,4 +171,3 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get('review_id')
         instance = get_object_or_404(Review, id=review_id, title_id=title_id)
         serializer.save(author=self.request.user, review=instance)
-  

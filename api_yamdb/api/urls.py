@@ -16,14 +16,14 @@ router.register(r'genres', GenreViewSet)
 router.register(
     r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
-    basename='review')
+    basename='reviews')
 router.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
     basename='comments')
 
 urlpatterns = [
-    path('auth/signup/', AuthViewRegister.as_view()),
+    path('users/me/', DetailView.as_view()),
     path('', include(router.urls)),
     path('auth/signup/', AuthViewRegister.as_view()),
     path('auth/token/', TokenViewGet.as_view()),

@@ -148,6 +148,7 @@ dmypy.json
 # папки со статикой и медиа
 media/
 
-.api_yamdb/api_yamdb/api/migrations
-.api_yamdb/api_yamdb/title/migrations
-.api_yamdb/api_yamdb/reviews/migrations
+api_yamdb/reviews/migrations/
+api_yamdb/titles/migrations/
+api_yamdb/user/migrations/
+

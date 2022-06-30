@@ -18,7 +18,7 @@ sqlparse==0.4.2
 tomli==2.0.1
 typing-extensions==4.2.0
 zipp==3.8.0
-pytest==6.2.5
+pytest==6.2.4
 pytest-django==4.4.0
 pytest-pythonpath==0.7.3
 django-filter==2.4.0
