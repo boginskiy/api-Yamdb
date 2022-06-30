@@ -19,6 +19,7 @@ class Review(models.Model):
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
+        ordering = ('-pub_date',)
         constraints = [
             models.UniqueConstraint(
                 fields=['title_id', 'author_id'],
@@ -37,3 +38,6 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+
+    class Meta:
+        ordering = ('-pub_date',)

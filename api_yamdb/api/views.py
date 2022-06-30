@@ -1,8 +1,7 @@
 from rest_framework import (viewsets, filters, generics, status)
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import filters, viewsets
 from rest_framework.response import Response
-from rest_framework import permissions
 from rest_framework import mixins
 from rest_framework.views import APIView
 from django.db import models
@@ -92,8 +91,9 @@ class TokenViewGet(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CreateDeleteListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                        mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class CreateDeleteListViewSet(
+        mixins.CreateModelMixin, mixins.ListModelMixin,
+        mixins.DestroyModelMixin, viewsets.GenericViewSet):
     pass
 
 
@@ -133,7 +133,7 @@ class TitleViewSet(viewsets.ModelViewSet):
             rating=models.Sum(models.F('reviews__score'))
             / models.Count(models.F('reviews'))
         )
-        return new_queryset
+        return new_queryset.order_by('name', 'category', '-year')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

@@ -50,6 +50,7 @@ class User(AbstractUser):
                 fields=['username', 'email'],
                 name='unique_follower')
         ]
+        ordering = ('id',)
 
     @property
     def is_admin(self):
