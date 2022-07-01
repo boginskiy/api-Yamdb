@@ -1,10 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    TitleViewSet, CategoryViewSet,
+    AuthViewRegister, CommentViewSet,
+    CategoryViewSet, DetailView,
     GenreViewSet, ReviewViewSet,
-    CommentViewSet, DetailView,
-    AuthViewRegister, TokenViewGet,
+    TitleViewSet, TokenViewGet,
     UserViewSet)
 
 

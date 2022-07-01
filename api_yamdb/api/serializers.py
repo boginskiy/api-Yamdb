@@ -1,9 +1,8 @@
 import datetime as dt
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
-from api.service import send_code_to_email, get_tokens_for_user
-from reviews.models import Review, Comment
-from titles.models import Category, Genre, Title
+from api.service import get_tokens_for_user, send_code_to_email
+from reviews.models import Category, Comment, Genre, Review, Title
 from user.models import User
 
 
