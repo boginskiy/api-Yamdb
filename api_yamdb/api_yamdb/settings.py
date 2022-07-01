@@ -17,9 +17,8 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'user.apps.UserConfig',
-    'api.apps.ApiConfig',
-    'titles.apps.TitlesConfig',
     'reviews.apps.ReviewsConfig',
+    'api.apps.ApiConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -110,12 +109,8 @@ AUTH_USER_MODEL = 'user.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = None
-EMAIL_HOST_PASSWORD = None
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

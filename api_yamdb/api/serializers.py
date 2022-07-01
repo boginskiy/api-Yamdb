@@ -1,10 +1,10 @@
 import datetime as dt
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
-from api.service import send_code_to_email, get_tokens_for_user
-from reviews.models import Review, Comment
-from titles.models import Category, Genre, Title
+from api.service import get_tokens_for_user
+from reviews.models import Category, Comment, Genre, Review, Title
 from user.models import User
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,26 +25,22 @@ class UserMeSerializer(UserSerializer):
     role = serializers.CharField(read_only=True)
 
 
-class AuthSerializer(serializers.ModelSerializer):
+class UserSignupSerializer(serializers.ModelSerializer):
+
     class Meta:
-        fields = ['username', 'email']
         model = User
+        fields = ('username', 'email')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=User.objects.all(),
+                fields=('username', 'email'))
+        ]
 
-    def create(self, validated_data):
-        user = User.objects.create(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            confirmation_code=self.context["code"]
-        )
-        user.save()
-        send_code_to_email(self.context["code"], validated_data['email'])
-        return user
-
-    def validate(self, data):
-        if data['username'] == 'me':
+    def validate_username(self, value):
+        if value == 'me':
             raise serializers.ValidationError(
-                "Имя 'me' нельзя использовать")
-        return data
+                'Использовать имя "me" в качестве username запрещено!')
+        return value
 
 
 class TokenSerializer(serializers.BaseSerializer):

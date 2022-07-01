@@ -1,28 +1,28 @@
-from rest_framework import (viewsets, filters, generics, status)
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import filters, viewsets
+import random
+from rest_framework import filters, mixins, status, viewsets
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import mixins
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.mail import send_mail
 from .filters import TitleFilter
-from api.service import get_random_number
-from reviews.models import Review
+from reviews.models import Category, Genre, Review, Title
 from user.models import User
-from titles.models import Category, Genre, Title
 from .permissions import (
+    AdminOrReadOnly, GetAuthenticatedPatchAdminOrAuthor,
     OnlyReadOrСhangeAuthorAdminModerator,
-    AdminOrReadOnly,
     OwnIsAuthenticatedAndIsAdmin)
 from .paginations import CustomPagination
 from .serializers import (
-    CategorySerializer, GenreSerializer,
-    ReadTitleSerializer, WriteTitleSerializer,
-    ReviewSerializer, CommentSerializer,
-    UserSerializer, AuthSerializer,
-    TokenSerializer, UserMeSerializer)
+    UserSignupSerializer, CategorySerializer,
+    CommentSerializer, GenreSerializer,
+    GenreSerializer, ReadTitleSerializer,
+    ReviewSerializer, TokenSerializer,
+    UserSerializer, UserMeSerializer,
+    WriteTitleSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -38,7 +38,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class DetailView(APIView):
     """Получение и изменение данных своей учетной записи"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [GetAuthenticatedPatchAdminOrAuthor]
 
     def get(self, request, format=None):
         user = get_object_or_404(User, username=request.user.username)
@@ -59,25 +59,26 @@ class DetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AuthViewRegister(generics.CreateAPIView):
-    """Регистрация пользователя."""
-    queryset = User.objects.all()
-    serializer_class = AuthSerializer
-    permission_classes = [AllowAny]
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def user_signup(request):
+    user_code = random.randint(100000, 999999)
+    serializer = UserSignupSerializer(data=request.data)
 
-    def get_serializer_context(self):
-        context = super(AuthViewRegister, self).get_serializer_context()
-        code = get_random_number()
-        context.update({"code": code})
-        return context
+    if serializer.is_valid(raise_exception=True):
+        serializer.save(confirmation_code=user_code)
+        field_name = serializer.data['username']
+        field_email = serializer.data['email']
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_200_OK, headers=headers)
+        send_mail(
+            'Подтверждение регистрации на сайте api_yamdb',
+            f'Уважаемый {field_name}, пароль регистрации: {user_code}',
+            'admin@yandex.com',
+            [field_email],
+            fail_silently=False,)
+
+        return Response({'email': field_email, 'username': field_name})
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TokenViewGet(APIView):
@@ -142,13 +143,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        titles_id = self.kwargs.get('title_id')
-        new_queryset = get_object_or_404(Title, id=titles_id)
+        new_queryset = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         return new_queryset.reviews.all()
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        instance = get_object_or_404(Title, id=title_id)
+        instance = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=instance)
 
 
@@ -167,7 +166,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         return new_queryset.comments.all()
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        review_id = self.kwargs.get('review_id')
-        instance = get_object_or_404(Review, id=review_id, title_id=title_id)
+        instance = get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id'),
+            title_id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, review=instance)

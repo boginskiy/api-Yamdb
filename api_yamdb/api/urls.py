@@ -1,10 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    TitleViewSet, CategoryViewSet,
+    user_signup, CommentViewSet,
+    CategoryViewSet, DetailView,
     GenreViewSet, ReviewViewSet,
-    CommentViewSet, DetailView,
-    AuthViewRegister, TokenViewGet,
+    TitleViewSet, TokenViewGet,
     UserViewSet)
 
 
@@ -25,6 +25,6 @@ router.register(
 urlpatterns = [
     path('users/me/', DetailView.as_view()),
     path('', include(router.urls)),
-    path('auth/signup/', AuthViewRegister.as_view()),
+    path('auth/signup/', user_signup),
     path('auth/token/', TokenViewGet.as_view()),
 ]
