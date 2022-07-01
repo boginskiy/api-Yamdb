@@ -1,12 +1,14 @@
-from rest_framework import filters, generics, mixins, status, viewsets
+import random
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.mail import send_mail
 from .filters import TitleFilter
-from api.service import get_random_number
 from reviews.models import Category, Genre, Review, Title
 from user.models import User
 from .permissions import (
@@ -15,7 +17,7 @@ from .permissions import (
     OwnIsAuthenticatedAndIsAdmin)
 from .paginations import CustomPagination
 from .serializers import (
-    AuthSerializer, CategorySerializer,
+    UserSignupSerializer, CategorySerializer,
     CommentSerializer, GenreSerializer,
     GenreSerializer, ReadTitleSerializer,
     ReviewSerializer, TokenSerializer,
@@ -57,25 +59,26 @@ class DetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AuthViewRegister(generics.CreateAPIView):
-    """Регистрация пользователя."""
-    queryset = User.objects.all()
-    serializer_class = AuthSerializer
-    permission_classes = [AllowAny]
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def user_signup(request):
+    user_code = random.randint(100000, 999999)
+    serializer = UserSignupSerializer(data=request.data)
 
-    def get_serializer_context(self):
-        context = super(AuthViewRegister, self).get_serializer_context()
-        code = get_random_number()
-        context.update({"code": code})
-        return context
+    if serializer.is_valid(raise_exception=True):
+        serializer.save(confirmation_code=user_code)
+        field_name = serializer.data['username']
+        field_email = serializer.data['email']
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_200_OK, headers=headers)
+        send_mail(
+            'Подтверждение регистрации на сайте api_yamdb',
+            f'Уважаемый {field_name}, пароль регистрации: {user_code}',
+            'admin@yandex.com',
+            [field_email],
+            fail_silently=False,)
+
+        return Response({'email': field_email, 'username': field_name})
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TokenViewGet(APIView):
