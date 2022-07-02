@@ -1,10 +1,10 @@
 import datetime as dt
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 from api.service import get_tokens_for_user
 from reviews.models import Category, Comment, Genre, Review, Title
 from user.models import User
-from rest_framework.validators import UniqueTogetherValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -143,11 +143,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
-
-    def validate_score(self, value):
-        if not (1 <= value <= 10):
-            raise serializers.ValidationError('Поставьте оценку от 1 до 10')
-        return value
 
     def validate(self, data):
         if self.context['request'].method == 'POST':
