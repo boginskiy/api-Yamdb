@@ -336,5 +336,7 @@ _search - поиск по имени пользователя (username) (тип
 
 ### **Авторы**
 [Одоевская Мария](https://github.com/MariaOdoevskaya) - python разработчик
+
 [Березин Владимир](https://github.com/barki90) - python разработчик
+
 [Богинский Дмитрий](https://github.com/boginskiy) - python разработчик, тимлид команды
