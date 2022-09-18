@@ -16,10 +16,6 @@ class User(AbstractUser):
         choices=ROLE_CHOICES,
         default=ROLE_CHOICES[0][0]
     )
-    confirmation_code = models.IntegerField(
-        'Код подтверждения',
-        null=True
-    )
 
     REQUIRED_FIELDS = ['email']
 
