@@ -78,7 +78,7 @@ python3 manage.py runserver
         "confirmation_code": "string"
     }
 ```
-* _confirmation_code_ - при регистрации нового пользователя в директории проекта **api_yamdb/sent_emails** появляется файл.log в котором находится данный код.
+* _confirmation_code - при регистрации нового пользователя в директории проекта **api_yamdb/sent_emails** появляется файл.log в котором находится данный код_
 * _Доступно любому пользователю_
 ---
 
